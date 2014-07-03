@@ -1,0 +1,14 @@
+{
+  "name": "rubyisbeautiful-hiera_redis",
+  "version": "1.0.3",
+  "author": "Bryan Taylor, Adam Kosmin c/o Reliant Security, Inc.",
+  "summary": "Redis backend for Hiera",
+  "license": "MIT",
+  "source": "https://github.com/rubyisbeautiful/hiera-redis",
+  "project_page": "https://github.com/rubyisbeautiful/hiera-redis",
+  "issues_url": "https://github.com/rubyisbeautiful/hiera-redis/issues",
+  "description": "Redis backend for Hiera",
+  "dependencies": [
+  
+  ]
+}
