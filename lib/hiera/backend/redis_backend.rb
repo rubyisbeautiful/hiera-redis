@@ -15,7 +15,7 @@ class Hiera
           raise "Unable to create connection to redis - check debug output for problems errors"
         end
       rescue LoadError
-        Hiera.debug("Hiera Redis backend couldn't find 'redis', retrying with rubygems")
+        Hiera.debug("Hiera Redis backend couldn't find 'redis'")
         retry if require 'rubygems'
         Hiera.warn("Couldn't load redis gem")
         raise
