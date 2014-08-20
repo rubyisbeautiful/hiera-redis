@@ -11,8 +11,14 @@ class Hiera
         require 'redis'
         Hiera.debug("Hiera Redis backend %s starting" % VERSION)
         @redis = connect
+        if @redis.nil?
+          raise "Unable to create connection to redis - check debug output for problems errors"
+        end
       rescue LoadError
+        Hiera.debug("Hiera Redis backend couldn't find 'redis', retrying with rubygems")
         retry if require 'rubygems'
+        Hiera.warn("Couldn't load redis gem")
+        raise
       end
 
 
