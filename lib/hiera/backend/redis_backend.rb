@@ -2,14 +2,25 @@ class Hiera
   module Backend
     class Redis_backend
 
-      VERSION='1.0.3'
+      VERSION='1.0.4'
 
       attr_reader :redis, :options
 
+
       def initialize
+        require 'redis'
         Hiera.debug("Hiera Redis backend %s starting" % VERSION)
         @redis = connect
+        if @redis.nil?
+          raise "Unable to create connection to redis - check debug output for problems errors"
+        end
+      rescue LoadError
+        Hiera.debug("Hiera Redis backend couldn't find 'redis'")
+        retry if require 'rubygems'
+        Hiera.warn("Couldn't load redis gem")
+        raise
       end
+
 
       def deserialize(args = {})
         return nil if args[:data].nil?
@@ -29,13 +40,13 @@ class Hiera
 
         Hiera.debug "Deserialized %s" % options[:deserialize].to_s.upcase
         result
-
       # when we try to deserialize a string
       rescue JSON::ParserError
         args[:data]
       rescue => e
         Hiera.warn "Exception raised: %s: %s" % [e.class, e.message]
       end
+
 
       def lookup(key, scope, order_override, resolution_type)
         answer = nil
@@ -62,7 +73,7 @@ class Hiera
           when :hash
             raise Exception, "Hiera type mismatch: expected Hash and got #{new_answer.class}" unless new_answer.is_a? Hash
             answer ||= {}
-            answer = new_answer.merge answer
+            answer = Backend.merge_answer(new_answer,answer)
           else
             answer = new_answer
             break
@@ -72,10 +83,11 @@ class Hiera
         answer
       end
 
+
       private
 
-      def connect
 
+      def connect
         # override default options
         @options = {
           :host => 'localhost',
@@ -88,15 +100,11 @@ class Hiera
           :separator => ':'
         }.merge Config[:redis] || {}
 
-        require 'redis'
-
         Redis.new(options)
-      rescue LoadError
-        retry if require 'rubygems'
       end
 
-      def redis_query(redis_key)
 
+      def redis_query(redis_key)
         case redis.type redis_key
         when 'set'
           redis.smembers redis_key
@@ -117,6 +125,7 @@ class Hiera
         raise e unless options.has_key?(:soft_connection_failure)
         nil
       end
+
     end
   end
 end

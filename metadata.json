@@ -1,6 +1,6 @@
 {
   "name": "rubyisbeautiful-hiera_redis",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "Bryan Taylor, Adam Kosmin c/o Reliant Security, Inc.",
   "summary": "Redis backend for Hiera",
   "license": "MIT",
