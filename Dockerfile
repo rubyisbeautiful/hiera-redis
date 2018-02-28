@@ -1,0 +1,2 @@
+FROM puppet/puppetserver-standalone
+

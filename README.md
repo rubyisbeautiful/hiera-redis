@@ -1,8 +1,9 @@
-Introduction
-============
+## Overview
+
+Compatible with Hiera 5
 
 hiera-redis empowers
-[Hiera](http://projects.puppetlabs.com/projects/hiera) to retrieve values from a Redis database.
+[Hiera](https://puppet.com/docs/puppet/5.4/hiera_custom_backends.html) to retrieve values from a Redis database.
 
 Supported Redis types:
 
@@ -14,8 +15,7 @@ Supported Redis types:
 
 All types can be JSON or YAML serialized but I don't see anything other than a string type being used for the job.
 
-Configuration
-=============
+## Configuration
 
 The following options can be specified in hiera.yaml:
 <pre>
@@ -24,7 +24,7 @@ The following options can be specified in hiera.yaml:
   :port: 6380                     # unless present, defaults to 6379
   :db: 1                          # unless present, defaults to 0
   :host: db.example.com           # unless present, defaults to localhost
-  :path: /tmp/redis.sock          # overrides port if unixsocket exists
+  :socket_path: /tmp/redis.sock          # overrides port if unixsocket exists
   :soft_connection_failure: true  # bypass exception if Redis server is unavailable; default is false
   :separator: /                   # unless present, defaults to :
 
@@ -34,44 +34,30 @@ The following options can be specified in hiera.yaml:
                                   # JSON.parse('foo'.to_json)
 </pre>
 
-Install
-=======
+## Install
 
-`gem install hiera-redis`
 
-Example
-=======
+Use puppet to install as a module
 
-Add some data into your Redis database
+## Example
 
-`set Debian:foo bar`
 
-`set common:foo baz`
+There is an included test setup in `environments`, so you should be able to clone this, 
+`docker-compose up -d` and then query:
 
-`hmset pets:kitties Evil black Handsome gray`
+`puppet lookup profile::hiera_test::foo --environment test --debug`
 
-Configure ~/.puppet/hiera.yaml
 
-<pre>
-:hierarchy:
-  - %{operatingsytem}
-  - pets
-  - common
-:backends:
-  - redis
-</pre>
 
-What is foo?
 
-`$ hiera -c ~/.puppet/hiera.yaml foo`
 
-What is bar?
+### Historical Information
 
-`$ hiera -c ~/.puppet/hiera.yaml bar`
-
-and the kitties?
-
-`$ hiera -c ~/.puppet/hiera.yaml kitties`
+This was original forked from https://github.com/reliantsolutions/hiera-redis and I modified it to
+publish as a proper Puppet module.  I modified it slightly for bugs, usability, etc, and then left it alone.
+Puppet has changed a lot.  I tried to pull from the upstream, but GitHub has said that the histories
+are no longer related.  
+Below please find the original author information.   
 
 Related Information
 ===================

@@ -1,0 +1,14 @@
+---
+
+version: "3.2"
+
+services:
+  puppet:
+    image: puppet/puppetserver-standalone
+    hostname: puppet
+    ports:
+      - 8140
+    volumes:
+      - .:/etc/puppetlabs/code
+  redis:
+    image: redis:3

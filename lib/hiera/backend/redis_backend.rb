@@ -2,7 +2,7 @@ class Hiera
   module Backend
     class Redis_backend
 
-      VERSION='1.0.4'
+      VERSION='5.0.0'
 
       attr_reader :redis, :options
 
@@ -20,6 +20,47 @@ class Hiera
         Hiera.warn("Couldn't load redis gem")
         raise
       end
+
+
+      def lookup(key, scope=nil, order_override=nil, resolution_type=:hash)
+        answer = nil
+
+
+        redis_key = "%s" % [source.split('/'), key].join(options[:separator])
+        Hiera.debug "Looking for %s%s%s" % [source, options[:separator], key]
+
+        data = redis_query redis_key
+
+        data = deserialize(
+          data: data,
+          redis_key: redis_key,
+          key: key
+        ) if options.include? :deserialize
+
+        next unless data
+
+        new_answer = Backend.parse_answer(data, scope)
+
+        case resolution_type
+        when :array
+          raise Exception, "Hiera type mismatch: expected Array and got #{new_answer.class}" unless new_answer.is_a? Array or new_answer.is_a? String
+          answer ||= []
+          answer << new_answer
+        when :hash
+          raise Exception, "Hiera type mismatch: expected Hash and got #{new_answer.class}" unless new_answer.is_a? Hash
+          answer ||= {}
+          answer = Backend.merge_answer(new_answer,answer)
+        else
+          answer = new_answer
+          break
+        end
+
+
+        answer
+      end
+
+
+      private
 
 
       def deserialize(args = {})
@@ -48,56 +89,17 @@ class Hiera
       end
 
 
-      def lookup(key, scope, order_override, resolution_type)
-        answer = nil
-
-        Backend.datasources(scope, order_override) do |source|
-          redis_key = "%s" % [source.split('/'), key].join(options[:separator])
-          Hiera.debug "Looking for %s%s%s" % [source, options[:separator], key]
-
-          data = redis_query redis_key
-
-          data = deserialize(:data => data,
-                  :redis_key => redis_key,
-                  :key => key) if options.include? :deserialize
-
-          next unless data
-
-          new_answer = Backend.parse_answer(data, scope)
-
-          case resolution_type
-          when :array
-            raise Exception, "Hiera type mismatch: expected Array and got #{new_answer.class}" unless new_answer.is_a? Array or new_answer.is_a? String
-            answer ||= []
-            answer << new_answer
-          when :hash
-            raise Exception, "Hiera type mismatch: expected Hash and got #{new_answer.class}" unless new_answer.is_a? Hash
-            answer ||= {}
-            answer = Backend.merge_answer(new_answer,answer)
-          else
-            answer = new_answer
-            break
-          end
-        end
-
-        answer
-      end
-
-
-      private
-
-
       def connect
         # override default options
         @options = {
-          :host => 'localhost',
-          :port => 6379,
-          :db => 0,
-          :password => nil,
-          :timeout => 3,
-          :path => nil,
-          :soft_connection_failure => false,
-          :separator => ':'
+          host: 'localhost',
+          port: 6379,
+          db: 0,
+          password: nil,
+          timeout: 3,
+          socket_path: nil,
+          soft_connection_failure: false,
+          separator: ':'
         }.merge Config[:redis] || {}
 
         Redis.new(options)
