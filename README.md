@@ -1,3 +1,20 @@
+# DEPRECATION NOTICE
+
+This repo will no longer be maintained.  Puppet Inc. has incorporated Hiera into the main Puppet
+product (as of the time of this writing, Puppet/Hiera 5).  Hiera 5 is not truly backwards compatible, 
+though there is Puppet documentation to suggest "smooth" migration paths.
+
+I no longer use Puppet, nor this module.  The upstream is also no longer maintained.
+If you would like to suggest an alternative please contact me so I can update this information.  
+
+Please [read about Puppet and Hiera 5 (and beyond) here](https://puppet.com/docs/puppet/latest/hiera.html)
+
+
+
+## Legacy README follows
+
+---
+
 Introduction
 ============
 
